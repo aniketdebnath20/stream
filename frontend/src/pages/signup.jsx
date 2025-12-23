@@ -1,9 +1,9 @@
 import React from "react";
 import { useState } from "react";
-import { Music, ShipWheelIcon } from "lucide-react";
+import { ShipWheelIcon } from "lucide-react";
 import { Link } from "react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { axiosInstance } from "../lib/axios";
+import { signup } from "../lib/api";
 
 const SignUp = () => {
   const [signupData, setSignupData] = useState({
@@ -14,18 +14,18 @@ const SignUp = () => {
 
   const QueryClient = useQueryClient();
 
-  const { mutate, error, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await axiosInstance.post("/auth/signup", signupData);
-      return res.data;
-    },
+  const {
+    mutate: signupMutation,
+    error,
+    isPending,
+  } = useMutation({
+    mutationFn: signup,
     onSuccess: () => QueryClient.invalidateQueries({ queryKey: ["authUser"] }),
   });
 
   const handleSignup = (e) => {
     e.preventDefault();
-    mutate();
-    // signupMutation(signupData);
+    signupMutation(signupData);
   };
 
   return (
@@ -47,7 +47,9 @@ const SignUp = () => {
           {/* ERROR MESSAGE IF ANY */}
           {error && (
             <div className="alert alert-error mb-4">
-              <span className="text-amber-100">{error.response.data.message}</span>
+              <span className="text-amber-100">
+                {error.response.data.message}
+              </span>
             </div>
           )}
 

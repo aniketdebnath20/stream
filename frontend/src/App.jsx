@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { getAuthUser } from "./lib/api";
 import Home from "./pages/home";
 import SignUp from "./pages/signup";
 import Login from "./pages/login";
@@ -10,19 +8,13 @@ import Onboarding from "./pages/onboarding";
 
 import { Navigate, Route, Routes } from "react-router";
 import { Toaster } from "react-hot-toast";
+import PageLoader from "./components/pageloader";
+import useAuthUser from "./hook/useAuthUser";
+import Layout from "./components/layout";
 
 const App = () => {
-  const useAuthUser = () => {
-    const authUser = useQuery({
-      queryKey: ["authUser"],
-      queryFn: getAuthUser,
-      retry: false, // auth check
-    });
-
-    return { isLoading: authUser.isLoading, authUser: authUser.data?.user };
-  };
-
-  const { authUser } = useAuthUser();
+  const { authUser, isLoading } = useAuthUser();
+  if (isLoading) return <PageLoader />;
 
   console.log(authUser);
 
@@ -68,10 +60,10 @@ const App = () => {
           path="/notifications"
           element={
             isAuthenticated && isOnboarded ? (
-              <Layout showSidebar={true}>
-                <Notification />
-              </Layout>
+              // <Layout showSidebar={true}>
+              <Notification />
             ) : (
+              // </Layout>
               <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
             )
           }
@@ -91,10 +83,10 @@ const App = () => {
           path="/chat/:id"
           element={
             isAuthenticated && isOnboarded ? (
-              <Layout showSidebar={false}>
-                <ChatPage />
-              </Layout>
+              // <Layout showSidebar={false}>
+              <ChatPage />
             ) : (
+              // </Layout>
               <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
             )
           }

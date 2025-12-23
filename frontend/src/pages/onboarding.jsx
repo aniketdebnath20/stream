@@ -1,22 +1,21 @@
 import React, { useState } from "react";
-import { getAuthUser } from "../lib/api";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { axiosInstance } from "../lib/axios";
-import { LoaderIcon, MapPinIcon, ShipWheelIcon, ShuffleIcon } from "lucide-react";
+import { completeOnboarding } from "../lib/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  LoaderIcon,
+  MapPinIcon,
+  ShipWheelIcon,
+  ShuffleIcon,
+} from "lucide-react";
 import { LANGUAGES } from "../lib/constants";
+import toast from "react-hot-toast";
+import useAuthUser from "../hook/useAuthUser";
 
 const Onboarding = () => {
-  const useAuthUser = () => {
-    const authUser = useQuery({
-      queryKey: ["authUser"],
-      queryFn: getAuthUser,
-      retry: false, // auth check
-    });
-
-    return { isLoading: authUser.isLoading, authUser: authUser.data?.user };
-  };
+  const [imageLoading, setImageLoading] = useState(false);
 
   const { authUser } = useAuthUser();
+  const queryClient = useQueryClient();
 
   const [formState, setFormState] = useState({
     fullName: authUser?.fullName || "",
@@ -27,30 +26,33 @@ const Onboarding = () => {
     profilePic: authUser?.profilePic || "",
   });
 
-  const queryClient = useQueryClient();
-
   const { mutate: onboardingMutation, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await axiosInstance.post("/auth/onboarding", formState);
-      return res.data;
-    },
+    mutationFn: completeOnboarding,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
   });
 
   const handleRandomAvatar = () => {
+    const idx = Math.floor(Math.random() * 100) + 1;
+    const randomAvatar = `https://avatar.iran.liara.run/public/${idx}.png`;
 
-  }
+    setImageLoading(true);
+    setFormState({ ...formState, profilePic: randomAvatar });
+
+    toast.success("Random profile picture generated!");
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onboardingMutation();
-    // onboardingMutation(formState);
+    onboardingMutation(formState);
   };
 
   return (
-    <div className="min-h-screen bg-base-100 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen bg-base-100 flex items-center justify-center p-4 data"
+      data-theme="forest"
+    >
       <div className="card bg-base-200 w-full max-w-3xl shadow-xl">
         <div className="card-body p-6 sm:p-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6">
@@ -61,15 +63,24 @@ const Onboarding = () => {
             {/* PROFILE PIC CONTAINER */}
             <div className="flex flex-col items-center justify-center space-y-4">
               {/* IMAGE PREVIEW */}
-              <div className="size-32 rounded-full bg-base-300 overflow-hidden">
+              <div className="relative size-32 rounded-full overflow-hidden bg-white">
+                {/* SKELETON */}
+                {imageLoading && (
+                  <div className="absolute inset-0 rounded-full skeleton"></div>
+                )}
+
                 {formState.profilePic ? (
                   <img
                     src={formState.profilePic}
                     alt="Profile Preview"
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${
+                      imageLoading ? "opacity-0" : "opacity-100"
+                    }`}
+                    onLoad={() => setImageLoading(false)}
+                    onError={() => setImageLoading(false)}
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex items-center justify-center size-32 rounded-full bg-base-300">
                     <CameraIcon className="size-12 text-base-content opacity-40" />
                   </div>
                 )}
@@ -116,7 +127,7 @@ const Onboarding = () => {
                 onChange={(e) =>
                   setFormState({ ...formState, bio: e.target.value })
                 }
-                className="textarea textarea-bordered h-24"
+                className="textarea textarea-bordered h-24 w-full"
                 placeholder="Tell others about yourself and your language learning goals"
               />
             </div>

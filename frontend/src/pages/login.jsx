@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useQueryClient } from "@tanstack/react-query";
 import { login } from "../lib/api";
+import { ShipWheelIcon } from "lucide-react";
+import { Link } from "react-router";
 
 const Login = () => {
   const [loginData, setLoginData] = useState({
@@ -9,8 +11,8 @@ const Login = () => {
     password: "",
   });
 
-  // This is how we did it at first, without using our custom hook
   const queryClient = useQueryClient();
+
   const {
     mutate: loginMutation,
     isPending,
@@ -21,8 +23,8 @@ const Login = () => {
   });
 
   const handleLogin = (e) => {
-    loginMutation();
     e.preventDefault();
+    loginMutation(loginData);
   };
 
   return (
@@ -44,7 +46,7 @@ const Login = () => {
           {/* ERROR MESSAGE DISPLAY */}
           {error && (
             <div className="alert alert-error mb-4">
-              <span>{error.response.data.message}</span>
+              <span className="text-amber-100">{error.response}</span>
             </div>
           )}
 

@@ -1,5 +1,5 @@
-import { Sidebar } from "lucide-react";
 import Navbar from "./Navbar";
+import Sidebar from "./sidebar";
 
 const Layout = ({ children, showSidebar = false }) => {
   return (
