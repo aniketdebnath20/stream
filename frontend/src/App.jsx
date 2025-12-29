@@ -22,7 +22,7 @@ const App = () => {
   const isOnboarded = authUser?.isOnboarded;
 
   return (
-    <>
+    <div data-theme="forest">
       <Routes>
         <Route
           path="/"
@@ -60,10 +60,10 @@ const App = () => {
           path="/notifications"
           element={
             isAuthenticated && isOnboarded ? (
-              // <Layout showSidebar={true}>
-              <Notification />
+              <Layout showSidebar={true}>
+                <Notification />
+              </Layout>
             ) : (
-              // </Layout>
               <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
             )
           }
@@ -72,7 +72,9 @@ const App = () => {
           path="/call/:id"
           element={
             isAuthenticated && isOnboarded ? (
-              <CallPage />
+              <Layout showSidebar={false}>
+                <CallPage />
+              </Layout>
             ) : (
               <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
             )
@@ -83,10 +85,10 @@ const App = () => {
           path="/chat/:id"
           element={
             isAuthenticated && isOnboarded ? (
-              // <Layout showSidebar={false}>
-              <ChatPage />
+              <Layout showSidebar={false}>
+                <ChatPage />
+              </Layout>
             ) : (
-              // </Layout>
               <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
             )
           }
@@ -109,7 +111,7 @@ const App = () => {
       </Routes>
 
       <Toaster />
-    </>
+    </div>
   );
 };
 

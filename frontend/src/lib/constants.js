@@ -195,3 +195,7 @@ export const LANGUAGE_TO_FLAG = {
   turkish: "tr",
   dutch: "nl",
 };
+
+export const capitialize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+
