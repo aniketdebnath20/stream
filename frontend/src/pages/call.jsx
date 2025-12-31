@@ -17,7 +17,7 @@ import "@stream-io/video-react-sdk/dist/css/styles.css";
 import toast from "react-hot-toast";
 import { getStreamToken } from "../lib/api";
 import useAuthUser from "../hook/useAuthUser";
-import PageLoader from "../components/PageLoader";
+import PageLoader from "../components/pageloader";
 
 const STREAM_API_KEY = import.meta.env.VITE_STREAM_API_KEY;
 
