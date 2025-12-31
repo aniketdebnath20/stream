@@ -6,10 +6,12 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import chatRoutes from "./routes/chat.js";
 import { connectDB } from "./lib/database.js";
+
+import path from "path";
 import cors from "cors";
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT;
 
 // middleware
 app.use(cors({
@@ -24,6 +26,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
+
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
