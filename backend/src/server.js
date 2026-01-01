@@ -12,8 +12,8 @@ import chatRoutes from "./routes/chat.js";
 import { connectDB } from "./lib/database.js";
 
 /* ==================== FIX __dirname ==================== */
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 /* ==================== APP SETUP ==================== */
 const app = express();
@@ -37,18 +37,21 @@ app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
 
 /* ==================== PRODUCTION FRONTEND ==================== */
-if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "../frontend/dist");
+// if (process.env.NODE_ENV === "production") {
+//   const frontendPath = path.join(__dirname, "../frontend/dist");
 
-  app.use(express.static(frontendPath));
+//   app.use(express.static(frontendPath));
 
-  app.get("/*", (req, res) => {
-       res.sendFile(path.join(frontendPath, "index.html"));
-  });
-}
+//   app.get("*", (req, res) => {
+//        res.sendFile(path.join(frontendPath, "index.html"));
+//   });
+// }
 
 /* ==================== START SERVER ==================== */
 app.listen(port, async () => {
   console.log(`🚀 Server running on port ${port}`);
   await connectDB();
 });
+
+  //  "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+  //  "start" : "npm run start --prefix backend"
