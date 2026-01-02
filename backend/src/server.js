@@ -3,55 +3,79 @@ import "./config/env.js";
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import chatRoutes from "./routes/chat.js";
 import { connectDB } from "./lib/database.js";
 
-const app = express();
+/* ==================== FIX __dirname ==================== */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-/* ==================== DB CONNECT ==================== */
-let isConnected = false;
-const connectOnce = async () => {
-  if (!isConnected) {
-    await connectDB();
-    isConnected = true;
-  }
-};
+/* ==================== APP SETUP ==================== */
+const app = express();
+const port = process.env.PORT || 5000;
 
 /* ==================== MIDDLEWARE ==================== */
 app.use(
   cors({
-    origin: [
-      "https://oansjgasd.netlify.app",
-      "http://localhost:5173",
-    ],
+    origin: ["http://localhost:5173","https://oansjgasd.netlify.app"],
     credentials: true,
   })
 );
 
-app.options("*", cors()); // 🔥 REQUIRED for preflight
+app.use((req, res, next) => {
+  res.setHeader(
+    "Access-Control-Allow-Origin",
+    "https://oansjgasd.netlify.app"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PUT,DELETE,OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+
+/* ==================== PRODUCTION FRONTEND ==================== */
+if (process.env.NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "../frontend/dist");
+
+  app.use(express.static(frontendPath));
+
+  app.get("*", (req, res) => {
+       res.sendFile(path.join(frontendPath, "index.html"));
+  });
+}
+
 /* ==================== ROUTES ==================== */
-app.use("/api/auth", async (req, res, next) => {
-  await connectOnce();
-  next();
-}, authRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/chat", chatRoutes);
 
-app.use("/api/users", async (req, res, next) => {
-  await connectOnce();
-  next();
-}, userRoutes);
 
-app.use("/api/chat", async (req, res, next) => {
-  await connectOnce();
-  next();
-}, chatRoutes);
+/* ==================== START SERVER ==================== */
+app.listen(port, async () => {
+  console.log(`🚀 Server running on port ${port}`);
+  await connectDB();
+});
 
-/* ==================== EXPORT FOR VERCEL ==================== */
-export default app;
+  //  "build": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend",
+  //  "start" : "npm run start --prefix backend"
