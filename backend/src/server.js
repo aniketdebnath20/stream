@@ -22,7 +22,7 @@ const port = process.env.PORT || 5000;
 /* ==================== MIDDLEWARE ==================== */
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://oansjgasd.netlify.app/"],
+    origin: ["http://localhost:5173","https://oansjgasd.netlify.app"],
     credentials: true,
   })
 );

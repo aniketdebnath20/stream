@@ -2,10 +2,9 @@ import { upsertStreamUser } from "../lib/stream.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 
-
 export async function signup(req, res) {
   const { email, password, fullName } = req.body;
-  
+
   try {
     if (!email || !password || !fullName) {
       return res.status(400).json({ message: "All fields are required" });
@@ -59,9 +58,9 @@ export async function signup(req, res) {
 
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      httpOnly: true, // prevent XSS attacks,
-      sameSite: "strict", // prevent CSRF attacks
-      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
     });
 
     res.status(201).json({ success: true, user: newUser });
